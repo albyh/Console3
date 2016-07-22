@@ -1,11 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ConsoleApplication3
 {
+    // Delegate used to pass methods as arguments to other methods
+    delegate double GetSum(double num1, double num2);
+
+
+    // A struct is a value type. Similar to classes but are lightweight. int, bool, float are technically structs.
+    struct Customers
+    {
+        private string name;
+        private double balance;
+        private int id;
+
+        public void createCust(string n, double b, int i)
+        {
+            name = n;
+            balance = b;
+            id = i;
+        }
+
+        public void showCust()
+        {
+            Console.WriteLine("Name " + name);
+            Console.WriteLine("Balance " + balance);
+            Console.WriteLine("ID " + id);
+        }
+
+    }
+    public class EnumTest
+    {
+
+        // Enum has symbolic names and associated values. An enum consists of a set of named constants called the enumerator list. 
+        public enum Days { Sun, Mon, Tue, Wed, Thu, Fri, Sat };
+
+        public void writeDay(int dom)
+        {
+            int x = (int)Days.Sun;
+            int y = (int)Days.Fri;
+            int z = (int)Days.Thu;
+            Console.WriteLine("Sun = {0}", x);
+            Console.WriteLine("Fri = {0}", y);
+            if ( z == dom )
+            {
+                Console.WriteLine("Day entered is Thursday");
+            }
+        }
+    }
+
     class Animal
     {
         //public, protected or private
@@ -89,7 +136,7 @@ namespace ConsoleApplication3
                 weight = 20,
                 sound = "Grrrr...",
             };
-            Console.WriteLine("*****************************************");
+            Console.WriteLine("*****************************************************");
 
             Dog spike = new Dog();
 
@@ -97,13 +144,94 @@ namespace ConsoleApplication3
 
             Console.WriteLine(pete.toString() );
 
+            Console.WriteLine("************Polymorphism*****************************");
+// Polymorphism through the use of an abstract class
+            Shape rect = new Rectangle(5, 5);
+            Shape tri = new Triangle(5, 5);
+            //due to polymorphism the correct area method will be called for each class
+            Console.WriteLine("Rect Area " + rect.area());
+            Console.WriteLine("Tri Area " + tri.area());
 
+            //this adds two rectangles via the + operator overload
+            Shape combRect = new Rectangle(5, 5) + new Rectangle(5, 5);
+            Console.WriteLine("CombRect area = " + combRect.area());
+
+            Console.WriteLine("*************Generic Class****************************");
+            KeyValue<string, string> superman = new KeyValue<string, string>("", "");
+            superman.key = "Superman";
+            superman.value = "Clark Kent";
+            superman.showData();
+
+            //KeyValue<int, string> television = new KeyValue<int, string>(0, "");
+            KeyValue<int, string> television = new KeyValue<int, string>(1234, "flat screen TV");
+            //television.key = 1234;
+            //television.value = "flat screen TV";
+            television.showData();
+            Console.WriteLine("*************Enum*************************************");
+
+            EnumTest myEnum = new EnumTest();
+            myEnum.writeDay(4);
+
+            Console.WriteLine("*************Struct*************************************");
+
+            var bob = new Customers();
+            bob.createCust("Bob", 134.32, 42);
+            bob.showCust();
+
+            Console.WriteLine("*************DELEGATE w/Anonymous Method***************");
+            // sum is initialized as a GetSum delegate defined above
+            {
+                GetSum sum = delegate (double num1, double num2)
+                {
+                    // the anonymous method
+                    return num1 + num2;
+                };
+            Console.WriteLine("5 + 10 = " + sum(5, 10));
+            }
+
+            Console.WriteLine("*************DELEGATE w/lambda Expression***************");
+            Func<int, int, int> getSum = (x, y) => x + y;
+
+            Console.WriteLine("5 + 3 = " + getSum.Invoke(5, 3));
+
+            Console.WriteLine("*************Lambda Expression w/List *****************");
+
+            List<int> numList = new List<int>{ 5, 10, 15, 20, 25 };
+            List<int> oddList = numList.Where(n => n % 2 == 1).ToList();
+
+            foreach( int i in oddList)
+            {
+                Console.WriteLine(i);
+            }
+            Console.WriteLine("*************StreamReader/StreamWriter******************");
+
+            string[] custs = { "Tom", "Fred", "Joe" };
+            using (StreamWriter sw = new StreamWriter("custs.txt"))
+            {
+                foreach (string cust in custs)
+                {
+                    sw.WriteLine(cust);
+                }
+            }
+            Console.WriteLine("***************Write to file done**********************");
+            string custName = "";
+            using (StreamReader sr = new StreamReader("custs.txt"))
+            {
+                while ((custName = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(custName);
+                }
+            }
+            Console.WriteLine("***************Read from file done**********************");
+
+            Console.WriteLine("********************END*********************************");
             // END
             Console.WriteLine("Press any key to quit...");
             Console.Read();
         }
-
     }
+
+
 
     //Create a subclass... can be same namespace but outside of prior class declaration
     //Inheritance
@@ -171,7 +299,6 @@ namespace ConsoleApplication3
 
             return new ConsoleApplication3.Rectangle(rectLength, rectWidth);
         }
-
     }
 
     class Triangle : Shape
@@ -190,4 +317,24 @@ namespace ConsoleApplication3
             return .5 * (theBase * height);
         }
     }
+
+// Generics / Generic Class = You don't have to specify the data type of an element in a class or in a method.
+
+    class KeyValue<TKey, TValue>
+    {
+        public TKey key { get; set; }
+        public TValue value { get; set; }
+
+        public KeyValue(TKey k, TValue v)
+        {
+            key = k;
+            value = v;
+        }
+
+        public void showData()
+        {
+            Console.WriteLine("{0} is {1} ", this.key, this.value);
+        }
+    }
+
 }
